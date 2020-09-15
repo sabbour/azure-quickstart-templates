@@ -1,67 +1,54 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "value": "East US"
-        },
         "clusterName": {
-            "value": "myCluster"
-        },
-        "clusterVersion": {
-            "value": "3.2"
-        },
-        "headNodeSize": {
-            "value": "Standard_D3"
-        },
-        "workerNodeSize": {
-            "value": "Standard_D3"
-        },
-        "workerNodeCount": {
-            "value": 4
+            "value": "GEN-UNIQUE"
         },
         "clusterLoginUserName": {
-            "value": "admin"
+            "value": "GEN-GUID"
         },
         "clusterLoginPassword": {
-            "value": "<password here>"
+            "value": "GEN-PASSWORD"
         },
         "sshUserName": {
-            "value": "sshuser"
+            "value": "GEN-UNIQUE"
         },
         "sshPassword": {
-            "value": "<password here>"
+            "value": "GEN-PASSWORD"
         },
         "existingClusterStorageResourceGroup": {
-            "value": "mystorageresourcegroup"
+            "value": "GET-PREREQ-existingClusterStorageResourceGroup"
         },
         "existingClusterStorageAccountName": {
-            "value": "mystorageaccount"
+            "value": "GET-PREREQ-existingClusterStorageAccountName"
         },
         "newOrExistingClusterStorageContainerName": {
-            "value": "containerName"
+            "value": "GEN-UNIQUE"
+        },
+        "existingHiveMetastoreServerResourceGroupName": {
+            "value": "GET-PREREQ-existingHiveMetastoreServerResourceGroupName"
         },
         "existingHiveMetastoreServerName": {
-            "value": "servername.database.windows.net"
+            "value": "GET-PREREQ-existingHiveMetastoreServerName"
         },
         "existingHiveMetastoreDatabaseName": {
-            "value": "databasename"
+            "value": "GET-PREREQ-existingHiveMetastoreDatabaseName"
         },
         "existingHiveMetastoreUsername": {
-            "value": "<metastore username>"
+            "value": "GET-PREREQ-existingHiveMetastoreUsername"
         },
         "existingHiveMetastorePassword": {
-            "value": "<metastore password>"
+            "value": "GET-PREREQ-existingHiveMetastorePassword"
         },
         "existingVirtualNetworkResourceGroup": {
-            "value": "virtualnetworkresourcegroup"
+            "value": "GET-PREREQ-existingVirtualNetworkResourceGroup"
         },
         "existingVirtualNetworkName": {
-            "value": "virtualnetworkname"
+            "value": "GET-PREREQ-existingVirtualNetworkName"
         },
         "existingVirtualNetworkSubnetName": {
-            "value": "subnetname"
+            "value": "GET-PREREQ-existingVirtualNetworkSubnetName"
         }
     }
 }
-

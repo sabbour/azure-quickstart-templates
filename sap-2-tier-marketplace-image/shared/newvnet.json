@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": {
@@ -28,21 +28,18 @@
     },
     "location": {
       "type": "string",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "Location where the template should be deployed."
+        "description": "Location for all resources."
       }
     }
   },
-  "variables": {
-    "apiVerion": "2015-06-15",
-    "apiVerionRm": "2015-01-01"
-  },
+  "variables": {},
   "resources": [
-    
     {
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
-      "apiVersion": "[variables('apiVerion')]",
+      "apiVersion": "2015-06-15",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
@@ -54,7 +51,7 @@
           {
             "name": "[parameters('subnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('subnetPrefix')]"              
+              "addressPrefix": "[parameters('subnetPrefix')]"
             }
           }
         ]

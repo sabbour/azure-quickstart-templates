@@ -1,17 +1,13 @@
-# Azure Container Service
+# Azure Container Service (DEPRECATED)
 
-This Microsoft Azure template creates an Azure Container Service cluster with a Mesos or Swarm orchestrator.
+![Azure Public Test Date](https://azurequickstartsservice.blob.core.windows.net/badges/101-acs-swarm/PublicLastTestDate.svg)
+![Azure Public Test Result](https://azurequickstartsservice.blob.core.windows.net/badges/101-acs-swarm/PublicDeployment.svg)
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F101-acs-swarm%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
+![Azure US Gov Last Test Date](https://azurequickstartsservice.blob.core.windows.net/badges/101-acs-swarm/FairfaxLastTestDate.svg)
+![Azure US Gov Last Test Result](https://azurequickstartsservice.blob.core.windows.net/badges/101-acs-swarm/FairfaxDeployment.svg)
 
-Click the "Deploy to Azure" button and then choose from the list of walkthrough depending on the orchestrator that you have chosen:
+![Best Practice Check](https://azurequickstartsservice.blob.core.windows.net/badges/101-acs-swarm/BestPracticeResult.svg)
+![Cred Scan Check](https://azurequickstartsservice.blob.core.windows.net/badges/101-acs-swarm/CredScanResult.svg)
 
-1. [Mesos](https://github.com/Azure/azure-quickstart-templates/blob/master/101-acs-mesos/docs/MesosWalkthrough.md) - The Mesos orchestrator [walkthrough](https://github.com/Azure/azure-quickstart-templates/blob/master/101-acs-mesos/docs/MesosWalkthrough.md).
-2. [Swarm](https://github.com/Azure/azure-quickstart-templates/blob/master/101-acs-swarm/docs/SwarmWalkthrough.md) - The Docker Swarm orchestrator [walkthrough](https://github.com/Azure/azure-quickstart-templates/blob/master/101-acs-swarm/docs/SwarmWalkthrough.md).
+See https://docs.microsoft.com/en-us/azure/container-service/container-service-docker-swarm.
 
-## Deployment Tips:
-1. You will need to provide an SSH RSA public key.  Follow instructions to generate SSH RSA keys in section [SSH Key Generation](https://github.com/Azure/azure-quickstart-templates/blob/master/101-acs-mesos/docs/SSHKeyManagement.md#ssh-key-generation).  Your key should include three parts, for example ```ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm```
-2. As a best practice, create a new resource group for every new container service you deploy.
-3. The installation log for the masters, agents, and jumpbox are in /var/log/azure/cluster-bootstrap.log
-4. Even though the agent VMs finish quickly Mesos can take 5-15 minutes to install, check /var/log/azure/cluster-bootstrap.log for the completion status.
-5. Visit [Common Issues](https://github.com/Azure/azure-quickstart-templates/blob/master/101-acs-mesos/docs/CommonIssues.md) if you have trouble deploying.

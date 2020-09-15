@@ -1,10 +1,7 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-05-01/deploymentParameters.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "value": "West US"
-    },
     "dnsLabelPrefix": {
       "value": "GEN-UNIQUE"
     },
@@ -12,13 +9,7 @@
       "value": "Static"
     },
     "adminUsername": {
-      "value": "userName"
-    },
-    "adminPassword": {
-      "value": "GEN-PASSWORD"
-    },
-    "sshKeyData": {
-      "value": "GEN-SSH-PUB-KEY"
+      "value": "GEN-UNIQUE"
     },
     "sshStorageAccountName": {
       "value": "storageAccountName"
@@ -28,6 +19,9 @@
     },
     "serversRole": {
       "value": "serversRole"
+    },
+    "adminPasswordOrKey": {
+      "value": "GEN-SSH-PUB-KEY"
     }
   }
 }

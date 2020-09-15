@@ -1,11 +1,12 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "newZoneName": {
       "type": "string",
+      "defaultValue": "[concat(uniqueString(resourceGroup().id), '.azurequickstart.org')]",
       "metadata": {
-        "description": "The name of the DNS zone to be created."
+        "description": "The name of the DNS zone to be created.  Must have at least 2 segements, e.g. hostname.org"
       }
     },
     "newRecordName": {
@@ -18,17 +19,19 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/dnszones",
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
       "name": "[parameters('newZoneName')]",
-      "apiVersion": "2015-05-04-preview",
-      "location": "global",
-      "properties": {}
+      "location": "global"
     },
     {
-      "type": "Microsoft.Network/dnszones/a",
-      "name": "[concat(parameters('newZoneName'), concat('/', parameters('newRecordName')))]",
-      "apiVersion": "2015-05-04-preview",
+      "type": "Microsoft.Network/dnsZones/A",
+      "apiVersion": "2018-05-01",
+      "name": "[concat(parameters('newZoneName'), '/', parameters('newRecordName'))]",
       "location": "global",
+      "dependsOn": [
+        "[parameters('newZoneName')]"
+      ],
       "properties": {
         "TTL": 3600,
         "ARecords": [
@@ -39,10 +42,13 @@
             "ipv4Address": "1.2.3.5"
           }
         ]
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Network/dnszones/', parameters('newZoneName'))]"
-      ]
+      }
     }
-  ]
+  ],
+  "outputs": {
+    "nameServers": {
+      "type": "array",
+      "value": "[reference(parameters('newZoneName')).nameServers]"
+    }
+  }
 }

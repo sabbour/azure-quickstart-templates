@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vaultName": {
@@ -8,28 +8,24 @@
         "description": "Name of the Vault"
       }
     },
-    "skuName": {
+    "location": {
       "type": "string",
-      "defaultValue": "Standard",
-      "allowedValues": [
-        "Standard",
-        "Premium"
-      ],
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "SKU for the vault"
+        "description": "Location for all resources."
       }
     }
   },
   "resources": [
     {
-      "type": "Microsoft.Backup/BackupVault",
-      "apiVersion": "2015-03-15",
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2020-02-02-preview",
       "name": "[parameters('vaultName')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "sku": {
-          "name": "[parameters('skuName')]"
-        }
+      "location": "[parameters('location')]",
+      "properties": { },
+      "sku": {
+        "name": "RS0",
+        "tier": "Standard"
       }
     }
   ]

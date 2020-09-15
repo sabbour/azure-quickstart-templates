@@ -1,11 +1,25 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "minecraftUser": {
+    "_artifactsLocation": {
       "type": "string",
       "metadata": {
-        "description": "Your Minecraft user name"
+        "description": "The base URI where artifacts required by this template are located. For example, if stored on a public GitHub repo, you'd use the following URI: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/minecraft-on-ubuntu/."
+      },
+      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/minecraft-on-ubuntu/"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation.  If your artifacts are stored on a public repo or public storage account you can leave this blank."
+      }
+    },
+    "adminPasswordOrKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
       }
     },
     "adminUsername": {
@@ -14,27 +28,15 @@
         "description": "Admin user name you will use to log on to the Virtual Machine."
       }
     },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the admin user name."
-      }
-    },
-    "dnsNameForPublicIP": {
+    "authenticationType": {
       "type": "string",
-      "metadata": {
-        "description": "Put a unique DNS Name for the Public IP used to access the Virtual Machine."
-      }
-    },
-    "minecraftServerVersion": {
-      "type": "string",
-      "defaultValue": "1.9",
+      "defaultValue": "sshPublicKey",
       "allowedValues": [
-        "1.8",
-        "1.9"
+        "sshPublicKey",
+        "password"
       ],
       "metadata": {
-        "description": "1.8 - Minecraft Version 1.8, 1.9 - Minecraft Version 1.9"
+        "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
       }
     },
     "difficulty": {
@@ -50,11 +52,21 @@
         "description": "0 - Peaceful, 1 - Easy, 2 - Normal, 3 - Hard"
       }
     },
-    "level-name": {
+    "dnsNameForPublicIP": {
       "type": "string",
-      "defaultValue": "world",
       "metadata": {
-        "description": "Name of your world"
+        "description": "Put a unique DNS Name for the Public IP used to access the Virtual Machine."
+      }
+    },
+    "enable-command-block": {
+      "type": "string",
+      "defaultValue": "false",
+      "allowedValues": [
+        "false",
+        "true"
+      ],
+      "metadata": {
+        "description": "enable command blocks"
       }
     },
     "gamemode": {
@@ -70,26 +82,42 @@
         "description": "0 - Survival, 1 - Creative, 2 - Adventure, 3 - Spectator"
       }
     },
-    "white-list": {
+    "generate-structures": {
       "type": "string",
-      "defaultValue": "false",
+      "defaultValue": "true",
       "allowedValues": [
         "false",
         "true"
       ],
       "metadata": {
-        "description": "Only ops and whitelisted players can connect"
+        "description": "Generates villages etc."
       }
     },
-    "enable-command-block": {
+    "level-name": {
       "type": "string",
-      "defaultValue": "false",
-      "allowedValues": [
-        "false",
-        "true"
-      ],
+      "defaultValue": "world",
       "metadata": {
-        "description": "enable command blocks"
+        "description": "Name of your world"
+      }
+    },
+    "level-seed": {
+      "type": "string",
+      "defaultValue": " ",
+      "metadata": {
+        "description": "Add a seed for your world"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "minecraftUser": {
+      "type": "string",
+      "metadata": {
+        "description": "Your Minecraft user name"
       }
     },
     "spawn-monsters": {
@@ -103,63 +131,79 @@
         "description": "Enables monster spawning"
       }
     },
-    "generate-structures": {
+    "virtualMachineSize": {
       "type": "string",
-      "defaultValue": "true",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "This is the Azure Virtual Machine size, and will affect the cost. If you don't know, just leave the default value."
+      }
+    },
+    "white-list": {
+      "type": "string",
+      "defaultValue": "false",
       "allowedValues": [
         "false",
         "true"
       ],
       "metadata": {
-        "description": "Generates villages etc."
-      }
-    },
-    "level-seed": {
-      "type": "string",
-      "defaultValue": " ",
-      "metadata": {
-        "description": "Add a seed for your world"
+        "description": "Only ops and whitelisted players can connect"
       }
     }
   },
   "variables": {
-    "lowerCaseDNSName": "[toLower(parameters('dnsNameForPublicIP'))]",
-    "imagePublisher": "Canonical",
+    "addressPrefix": "10.0.0.0/16",
     "imageOffer": "UbuntuServer",
-    "OSDiskName": "osdiskforlinuxsimple",
-    "newStorageAccountName": "[concat(variables('lowerCaseDNSName'), 'storage')]",
+    "imagePublisher": "Canonical",
+    "linuxConfiguration": {
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+            "keyData": "[parameters('adminPasswordOrKey')]"
+          }
+        ]
+      }
+    },
+    "lowerCaseDNSName": "[toLower(parameters('dnsNameForPublicIP'))]",
     "networkSecurityGroupName": "[concat(variables('lowerCaseDNSName'), 'nsg')]",
     "nicName": "minecraftvmnic",
-    "addressPrefix": "10.0.0.0/16",
-    "subnetName": "subnet",
-    "subnetPrefix": "10.0.0.0/24",
-    "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "minecraftpublicip",
     "publicIPAddressType": "Dynamic",
-    "ubuntuOSVersion": "15.10",
-    "vmStorageAccountContainerName": "vhds",
-    "vmName": "minecraftvm",
-    "vmSize": "Standard_A1",
+    "subnetName": "subnet",
+    "subnetPrefix": "10.0.0.0/24",
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
+    "ubuntuOSVersion": "18.04-LTS",
     "virtualNetworkName": "minecraftvnet",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-    "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "location": "[resourceGroup().location]"
+    "vmName": "minecraftvm"
   },
   "resources": [
     {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[variables('newStorageAccountName')]",
-      "location": "[variables('location')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'),'/newuserscript')]",
+      "apiVersion": "2019-12-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
       "properties": {
-        "accountType": "[variables('storageAccountType')]"
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[uri(parameters('_artifactsLocation'), concat('install_minecraft.sh', parameters('_artifactsLocationSasToken')))]"
+          ],
+          "commandToExecute": "[concat('bash install_minecraft.sh ', parameters('minecraftUser'), ' ', parameters('difficulty'), ' ', parameters('level-name'), ' ', parameters('gamemode'), ' ', parameters('white-list'), ' ', parameters('enable-command-block'), ' ', parameters('spawn-monsters'), ' ', parameters('generate-structures'), ' ', parameters('level-seed'))]"
+        }
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('networkSecurityGroupName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "properties": {
         "securityRules": [
           {
@@ -176,7 +220,7 @@
               "direction": "Inbound"
             }
           },
-         {
+          {
             "name": "minecraft",
             "properties": {
               "description": "Minecraft server port",
@@ -194,10 +238,36 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('publicIPAddressName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
@@ -206,12 +276,12 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
       ],
       "properties": {
         "addressSpace": {
@@ -233,48 +303,22 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicName')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
-              },
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2019-12-01",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vmName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
+          "vmSize": "[parameters('virtualMachineSize')]"
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPasswordOrKey')]",
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
         },
         "storageProfile": {
           "imageReference": {
@@ -284,12 +328,9 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat('http://',variables('newStorageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
-            },
             "caching": "ReadWrite",
-            "createOption": "FromImage"
+            "createOption": "FromImage",
+            "diskSizeGB": "100"
           }
         },
         "networkProfile": {
@@ -298,26 +339,6 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
             }
           ]
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/newuserscript')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.OSTCExtensions",
-        "type": "CustomScriptForLinux",
-        "typeHandlerVersion": "1.2",
-        "settings": {
-          "fileUris": [
-            "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/minecraft-on-ubuntu/install_minecraft.sh"
-          ],
-          "commandToExecute": "[concat('bash install_minecraft.sh ', parameters('minecraftUser'), ' ', parameters('minecraftServerVersion'), ' ', parameters('difficulty'), ' ', parameters('level-name'), ' ', parameters('gamemode'), ' ', parameters('white-list'), ' ', parameters('enable-command-block'), ' ', parameters('spawn-monsters'), ' ', parameters('generate-structures'), ' ', parameters('level-seed'))]"
         }
       }
     }

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "namespace": {
@@ -7,12 +7,6 @@
       "defaultValue": "jumpbox",
       "metadata": {
         "description": "The namespace prefix for resources created by this template"
-      }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Location where resources will be provisioned"
       }
     },
     "subnet": {
@@ -52,10 +46,6 @@
     "namespace": {
       "type": "string",
       "value": "[parameters('namespace')]"
-    },
-    "location": {
-      "type": "string",
-      "value": "[parameters('location')]"
     },
     "subnet": {
       "type": "object",

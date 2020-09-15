@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
@@ -7,35 +7,6 @@
       "metadata": {
         "description": "Username for the Virtual Machine."
       }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the Virtual Machine."
-      }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "The location where the Virtual Machine will be deployed."
-      },
-      "allowedValues": [
-        "Australia East",
-        "Australia Southeast",
-        "Brazil South",
-        "Central US",
-        "East Asia",
-        "East US",
-        "East US 2",
-        "Japan East",
-        "Japan West",
-        "North Central US",
-        "North Europe",
-        "South Central US",
-        "Southeast Asia",
-        "West Europe",
-        "West US"
-      ]
     },
     "newStorageAccountName": {
       "type": "string",
@@ -115,10 +86,33 @@
       "metadata": {
         "description": "The user name you want to remove"
       }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "authenticationType": {
+      "type": "string",
+      "defaultValue": "sshPublicKey",
+      "allowedValues": [
+        "sshPublicKey",
+        "password"
+      ],
+      "metadata": {
+        "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
+      }
+    },
+    "adminPasswordOrKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
+      }
     }
   },
   "variables": {
-    "api-version": "2015-06-15",
     "virtualNetworkName": "vnet-vmaccess",
     "nicName": "[parameters('vmName')]",
     "publicIPAddressName": "[parameters('vmName')]",
@@ -126,18 +120,25 @@
     "subnetName": "VMAccess",
     "subnetPrefix": "10.0.0.0/24",
     "publicIPAddressType": "Dynamic",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-    "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "vmStorageAccountContainerName": "vhds",
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
     "storageAccountType": "Standard_LRS",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
-    "OSDiskName": "osdiskforvmaccess",
-    "extensionName": "VMAccess"
+    "linuxConfiguration": {
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+            "keyData": "[parameters('adminPasswordOrKey')]"
+          }
+        ]
+      }
+    }
   },
   "resources": [
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('newStorageAccountName')]",
       "location": "[parameters('location')]",
@@ -146,7 +147,7 @@
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('publicIPAddressName')]",
       "location": "[parameters('location')]",
@@ -158,7 +159,7 @@
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
@@ -179,7 +180,7 @@
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicName')]",
       "location": "[parameters('location')]",
@@ -205,7 +206,7 @@
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2016-04-30-preview",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('vmName')]",
       "location": "[parameters('location')]",
@@ -220,7 +221,8 @@
         "osProfile": {
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPasswordOrKey')]",
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
         },
         "storageProfile": {
           "imageReference": {
@@ -230,11 +232,6 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "osdisk1",
-            "vhd": {
-              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
-            },
-            "caching": "ReadWrite",
             "createOption": "FromImage"
           }
         },
@@ -247,14 +244,14 @@
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
-             "enabled": "true",
-             "storageUri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net')]"
+            "enabled": true,
+            "storageUri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net')]"
           }
         }
       }
     },
     {
-      "apiVersion": "[variables('api-version')]",
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(parameters('vmName'),'/enablevmaccess')]",
       "location": "[parameters('location')]",
@@ -264,7 +261,8 @@
       "properties": {
         "publisher": "Microsoft.OSTCExtensions",
         "type": "VMAccessForLinux",
-        "typeHandlerVersion": "1.1",
+        "typeHandlerVersion": "1.4",
+        "autoUpgradeMinorVersion": "true",
         "settings": {},
         "protectedSettings": {
           "username": "[parameters('userName')]",

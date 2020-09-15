@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "commonSettings": {
@@ -25,6 +25,12 @@
       "metadata": {
         "Description": "Machine settings object"
       }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "variables": {},
@@ -32,8 +38,8 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "nicArbiter",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
+      "apiVersion": "2020-05-01",
+      "location": "[parameters('location')]",
       "properties": {
         "ipConfigurations": [
           {
@@ -51,10 +57,10 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "vmArbiter",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
+      "apiVersion": "2019-12-01",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', 'nicArbiter')]"
+        "[resourceId('Microsoft.Network/networkInterfaces/', 'nicArbiter')]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -68,10 +74,8 @@
         "storageProfile": {
           "imageReference": "[parameters('machineSettings').osImageReference]",
           "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat(parameters('storageSettings').destinationVhdsContainer, 'arbiter-os-disk.vhd')]"
-            },
+
+            "name": "[concat('vmArbiter','_OSDisk')]",
             "caching": "ReadWrite",
             "createOption": "FromImage"
           }
@@ -88,15 +92,16 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "vmArbiter/installmongodb",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
+      "apiVersion": "2019-12-01",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', 'vmArbiter')]"
+        "[resourceId('Microsoft.Compute/virtualMachines/', 'vmArbiter')]"
       ],
       "properties": {
-        "publisher": "Microsoft.OSTCExtensions",
-        "type": "CustomScriptForLinux",
-        "typeHandlerVersion": "1.4",
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": "[parameters('machineSettings').vmScripts]"
         },

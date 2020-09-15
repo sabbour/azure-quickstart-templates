@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "commonSettings": {
@@ -25,6 +25,12 @@
       "metadata": {
         "Description": "Machine settings object"
       }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "variables": {},
@@ -32,8 +38,8 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat('nicMember', parameters('machineSettings').machineIndex)]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
+      "apiVersion": "2020-05-01",
+      "location": "[parameters('location')]",
       "properties": {
         "ipConfigurations": [
           {
@@ -52,10 +58,10 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat('vmMember', parameters('machineSettings').machineIndex)]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
+      "apiVersion":  "2019-12-01", 
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', 'nicMember', parameters('machineSettings').machineIndex)]"
+        "[resourceId('Microsoft.Network/networkInterfaces/', concat('nicMember', parameters('machineSettings').machineIndex))]"
       ],
       "properties": {
         "availabilitySet": {
@@ -72,51 +78,40 @@
         "storageProfile": {
           "imageReference": "[parameters('machineSettings').osImageReference]",
           "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat(parameters('storageSettings').destinationVhdsContainer, 'vm', parameters('machineSettings').machineIndex, 'OsDisk.vhd')]"
-            },
+            "name": "[concat('vmMember', parameters('machineSettings').machineIndex,'_OSDisk')]", 
             "caching": "ReadWrite",
             "createOption": "FromImage"
           },
           "dataDisks": [
             {
-              "name": "dataDisk0",
+              "name": "[concat('vmMember', parameters('machineSettings').machineIndex,'_DataDisk0')]", 
               "diskSizeGB": "[parameters('machineSettings').dataDiskSize]",
               "lun": 0,
-              "vhd": {
-                "Uri": "[concat(parameters('storageSettings').destinationVhdsContainer, 'vm', parameters('machineSettings').machineIndex, 'dataDisk0.vhd')]"
-              },
+            
               "caching": "ReadOnly",
               "createOption": "Empty"
             },
             {
-              "name": "dataDisk1",
+              "name": "[concat('vmMember', parameters('machineSettings').machineIndex,'_DataDisk1')]", 
               "diskSizeGB": "[parameters('machineSettings').dataDiskSize]",
               "lun": 1,
-              "vhd": {
-                "Uri": "[concat(parameters('storageSettings').destinationVhdsContainer, 'vm', parameters('machineSettings').machineIndex, 'dataDisk1.vhd')]"
-              },
+              
               "caching": "ReadOnly",
               "createOption": "Empty"
             },
             {
-              "name": "dataDisk2",
+              "name": "[concat('vmMember', parameters('machineSettings').machineIndex,'_DataDisk2')]", 
               "diskSizeGB": "[parameters('machineSettings').dataDiskSize]",
               "lun": 2,
-              "vhd": {
-                "Uri": "[concat(parameters('storageSettings').destinationVhdsContainer, 'vm', parameters('machineSettings').machineIndex, 'dataDisk2.vhd')]"
-              },
+             
               "caching": "ReadOnly",
               "createOption": "Empty"
             },
             {
-              "name": "dataDisk3",
+              "name": "[concat('vmMember', parameters('machineSettings').machineIndex,'_DataDisk3')]", 
               "diskSizeGB": "[parameters('machineSettings').dataDiskSize]",
               "lun": 3,
-              "vhd": {
-                "Uri": "[concat(parameters('storageSettings').destinationVhdsContainer, 'vm', parameters('machineSettings').machineIndex, 'dataDisk3.vhd')]"
-              },
+             
               "caching": "ReadOnly",
               "createOption": "Empty"
             }
@@ -125,7 +120,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat('nicMember', parameters('machineSettings').machineIndex))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nicMember', parameters('machineSettings').machineIndex))]"
             }
           ]
         }
@@ -134,15 +129,16 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat('vmMember', parameters('machineSettings').machineIndex, '/installmongodb')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
+      "apiVersion": "2019-12-01",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', 'vmMember', parameters('machineSettings').machineIndex)]"
+        "[resourceId('Microsoft.Compute/virtualMachines/', concat('vmMember', parameters('machineSettings').machineIndex))]"
       ],
       "properties": {
-        "publisher": "Microsoft.OSTCExtensions",
-        "type": "CustomScriptForLinux",
-        "typeHandlerVersion": "1.4",
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": "[parameters('machineSettings').vmScripts]"
         },

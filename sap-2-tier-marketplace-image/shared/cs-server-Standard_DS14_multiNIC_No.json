@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "imageReference": {
@@ -16,15 +16,13 @@
     },
     "osDiskType": {
       "type": "string",
-      "allowedValues": [ "image", "userImage", "osdisk" ],
+      "allowedValues": [
+        "image",
+        "userImage",
+        "osdisk"
+      ],
       "metadata": {
         "description": "The type of OS disk."
-      }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Location where the template should be deployed."
       }
     },
     "sidlower": {
@@ -68,11 +66,16 @@
       "metadata": {
         "description": "Name of the network interface."
       }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "variables": {
-    "osDiskName": "[concat(parameters('sidlower'),'-os.vhd')]",
-    "osDiskCaching": "ReadWrite",
     "dataDisks": [
       {
         "name": "dbdisk1",
@@ -82,7 +85,7 @@
         },
         "createOption": "Empty",
         "caching": "None",
-        "diskSizeGB": "1023"
+        "diskSizeGB": 1023
       },
       {
         "name": "dbdisk2",
@@ -92,7 +95,7 @@
         },
         "createOption": "Empty",
         "caching": "None",
-        "diskSizeGB": "1023"
+        "diskSizeGB": 1023
       },
       {
         "name": "dbdisk3",
@@ -102,7 +105,7 @@
         },
         "createOption": "Empty",
         "caching": "None",
-        "diskSizeGB": "1023"
+        "diskSizeGB": 1023
       },
       {
         "name": "dbdisk4",
@@ -112,7 +115,7 @@
         },
         "createOption": "Empty",
         "caching": "None",
-        "diskSizeGB": "512"
+        "diskSizeGB": 512
       }
     ],
     "hardwareProfile": {
@@ -140,7 +143,6 @@
         },
         "networkProfile": "[variables('networkProfile')]"
       },
-
       "userImage": {
         "hardwareProfile": "[variables('hardwareProfile')]",
         "osProfile": {
@@ -154,7 +156,6 @@
         },
         "networkProfile": "[variables('networkProfile')]"
       },
-
       "osdisk": {
         "hardwareProfile": "[variables('hardwareProfile')]",
         "storageProfile": {
@@ -165,7 +166,6 @@
       }
     },
     "internalProperties": "[variables('availableProperties')[parameters('osDiskType')]]"
-
   },
   "resources": [
     {

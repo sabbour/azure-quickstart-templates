@@ -1,7 +1,17 @@
 {
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "type": "QuickStart",
   "itemDisplayName": "Create a Logic App using a template",
-  "description": "This template create an empty logic app that can be used to define workflows.",
+  "icon": "logic",
+  "description": "This template creates an empty logic app that can be used to define workflows.",
   "summary": "Create a Logic App using a template.",
-  "githubUsername": "tfitzmac",
-  "dateUpdated": "2015-12-21"
-}
+  "githubUsername": "jeffhollan",
+  "dateUpdated": "2020-09-11",
+  "tags": {
+      "subscriptiontype": "Azure4Student",
+      "resource": "App Service, MySQL",
+      "os": "Linux, Logic App",
+      "level": "beginner",
+      "cost": "$"
+  }
+}  

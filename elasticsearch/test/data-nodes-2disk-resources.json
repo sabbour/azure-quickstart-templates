@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
@@ -18,12 +18,6 @@
       "type": "object",
       "metadata": {
         "description": "Storage Account Settings"
-      }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Location where resources will be provisioned"
       }
     },
     "subnet": {
@@ -86,10 +80,6 @@
     "storageSettings": {
       "type": "object",
       "value": "[parameters('storageSettings')]"
-    },
-    "location": {
-      "type": "string",
-      "value": "[parameters('location')]"
     },
     "subnet": {
       "type": "object",

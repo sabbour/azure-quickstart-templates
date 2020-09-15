@@ -1,7 +1,16 @@
 {
-  "itemDisplayName": "Deploy a simple Linux VM in West US",
-  "description": "This template allows you to deploy a simple Linux VM using a few different options for the Ubuntu version, using the latest patched version. This will deploy in West US on a D1 VM Size.",
-  "summary": "This template takes a minimum amount of parameters and deploys a Linux VM, using the latest patched version.",
-  "githubUsername": "coreysa",
-  "dateUpdated": "2015-12-21"
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "itemDisplayName": "Deploy a simple Ubuntu Linux VM 18.04-LTS.",
+  "description": "This template deploy a Ubuntu Server with a few options for the VM. You can provide the VM Name, OS Version, VM size, admin username and password. As default the VM size is Standard_B2s and O.S. Version is 18.04-LTS.",
+  "summary": "This template takes a minimum amount of parameters and deploys a simple Linux VM, using the latest patched version.",
+  "githubUsername": "bmoore-msft",
+  "dateUpdated": "2020-03-07",
+  "type": "QuickStart",
+  "tags": {
+      "subscriptiontype": "Azure4Student",
+      "resource": "VM",
+      "os": "Linux, Ubuntu",
+      "level": "Beginner",
+      "cost": "$$"
+  }
 }

@@ -1,14 +1,7 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "region": {
-      "type": "string",
-      "defaultValue": "West US",
-      "metadata": {
-        "Description": "Location where resources will be provisioned"
-      }
-    },
     "virtualNetworkName": {
       "type": "string",
       "defaultValue": "myVNET",
@@ -58,7 +51,7 @@
     },
     "imageSKU": {
       "type": "string",
-      "defaultValue": "14.04.2-LTS",
+      "defaultValue": "14.04.5-LTS",
       "metadata": {
         "Description": "Image SKU"
       }

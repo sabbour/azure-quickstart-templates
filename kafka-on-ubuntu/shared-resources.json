@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
@@ -7,13 +7,6 @@
       "defaultValue": "uniquestoragsharedkafka",
       "metadata": {
         "Description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed"
-      }
-    },
-    "region": {
-      "type": "string",
-      "defaultValue": "West US",
-      "metadata": {
-        "Description": "Location where resources will be provisioned"
       }
     },
     "virtualNetworkName": {
@@ -43,10 +36,17 @@
       "metadata": {
         "Description": "Address space for the virtual network subnet"
       }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "variables": {
-    "platformFaultDomainCount": "2",
+    "platformFaultDomainCount": 2,
     "platformUpdateDomainCount": "5"
   },
   "resources": [
@@ -54,16 +54,19 @@
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('storageAccountName')]",
       "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('region')]",
+      "location": "[parameters('location')]",
       "properties": {
         "accountType": "Standard_LRS"
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2017-12-01",
       "type": "Microsoft.Compute/availabilitySets",
       "name": "kafkaCluserAS",
-      "location": "[parameters('region')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Aligned"
+        },
       "properties": {
         "platformFaultDomainCount": "[variables('platformFaultDomainCount')]",
         "platformUpdateDomainCount": "[variables('platformUpdateDomainCount')]"
@@ -73,7 +76,7 @@
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('virtualNetworkName')]",
-      "location": "[parameters('region')]",
+      "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
