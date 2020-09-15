@@ -1,4 +1,4 @@
-# Openvpn Access Server on Ubuntu VM
+# OpenVPN Access Server + Let's Encrypt on Ubuntu VM
 
 ![Azure Public Test Date](https://azurequickstartsservice.blob.core.windows.net/badges/openvpn-access-server-ubuntu/PublicLastTestDate.svg)
 ![Azure Public Test Result](https://azurequickstartsservice.blob.core.windows.net/badges/openvpn-access-server-ubuntu/PublicDeployment.svg)
@@ -13,6 +13,6 @@
 
 This template uses the Azure Linux CustomScript extension to deploy an OpenVPN Access Server. It creates an Ubuntu VM, does a silent install of OpenVPN Access Server. Certbot is also installed to generate Let's Encrypt certificates for the webserver.
 
-The user is **openvpn**, password is the VM password defined during the deployment.
+The user is **openvpn**, and use the password defined during the deployment.
 
 After deployment, you can go to https://dnsprefix.location.cloudapp.azure.com , then input the user and password, download the client software on your machine, connect to the VPN Server.
