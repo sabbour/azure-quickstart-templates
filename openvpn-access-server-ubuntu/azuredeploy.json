@@ -284,11 +284,11 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/openvpn-access-server-ubuntu/install_openvpn_access_server.sh"
+            "https://raw.githubusercontent.com/sabbour/azure-quickstart-templates/master/openvpn-access-server-ubuntu/install_openvpn_access_server.sh"
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('bash install_openvpn_access_server.sh ', parameters('openvpnPassword'))]"
+          "commandToExecute": "[concat('bash install_openvpn_access_server.sh ', parameters('openvpnPassword'), parameters('dnsNamePrefix'), parameters('location'))]"
         }
       }
     }
