@@ -149,6 +149,19 @@
             }
           },
           {
+            "name": "LetsEncrypt_HTTPChallenge",
+            "properties": {
+              "priority": 1400,
+              "sourceAddressPrefix": "*",
+              "protocol": "Tcp",
+              "destinationPortRange": "80",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
             "name": "default-allow-ssh",
             "properties": {
               "priority": 1000,
