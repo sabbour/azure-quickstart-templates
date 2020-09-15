@@ -46,4 +46,4 @@ sudo ln -s -f /etc/letsencrypt/live/$domain/privkey.pem /usr/local/openvpn_as/et
 sudo ln -s -f /etc/letsencrypt/live/$domain/fullchain.pem /usr/local/openvpn_as/etc/web-ssl/ca.crt
 
 #restart OpenVPN AS service
-sudo systemctl restart openvpnas
+sudo service openvpnas stop && sudo service openvpnas start
