@@ -288,7 +288,7 @@
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('bash install_openvpn_access_server.sh ', parameters('openvpnPassword'), parameters('dnsNamePrefix'), parameters('location'))]"
+          "commandToExecute": "[concat('bash install_openvpn_access_server.sh ', parameters('openvpnPassword'), ' ', parameters('dnsNamePrefix'), ' ', parameters('location'))]"
         }
       }
     }
