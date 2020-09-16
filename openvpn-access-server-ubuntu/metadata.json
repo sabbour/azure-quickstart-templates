@@ -5,5 +5,5 @@
   "description": "This template uses the Azure Linux CustomScript extension to deploy an OpenVPN Access Server with Let's Encrypt certificates. It creates an Ubuntu VM, does a silent install of OpenVPN Access Server, then configures a SSL/TLS certificate using Let's Encrypt.",
   "summary": "Deploy an OpenVPN Access Server with Let's Encrypt certificates",
   "githubUsername": "251744647",
-  "dateUpdated": "2020-09-215"
+  "dateUpdated": "2020-09-15"
 }
