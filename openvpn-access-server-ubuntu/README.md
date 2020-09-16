@@ -15,4 +15,4 @@ This template uses the Azure Linux CustomScript extension to deploy an OpenVPN A
 
 The user is **openvpn**, and use the password defined during the deployment.
 
-After deployment, you can go to https://dnsprefix.location.cloudapp.azure.com , then input the user and password, download the client software on your machine, connect to the VPN Server.
+After deployment, you can go to `https://<dnsprefix>.<location>.cloudapp.azure.com` , then input the user and password, download the client software on your machine, connect to the VPN Server.
