@@ -45,5 +45,8 @@ sudo ln -s -f /etc/letsencrypt/live/$domain/cert.pem /usr/local/openvpn_as/etc/w
 sudo ln -s -f /etc/letsencrypt/live/$domain/privkey.pem /usr/local/openvpn_as/etc/web-ssl/server.key
 sudo ln -s -f /etc/letsencrypt/live/$domain/fullchain.pem /usr/local/openvpn_as/etc/web-ssl/ca.crt
 
-#restart OpenVPN AS service
+# Configure hostname
+/usr/local/openvpn_as/scripts/sacli --key "host.name" --value "$domain" ConfigPut
+
+# Restart OpenVPN AS service
 sudo service openvpnas stop && sudo service openvpnas start
